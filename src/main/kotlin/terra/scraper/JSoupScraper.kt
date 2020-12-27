@@ -7,10 +7,13 @@ import terra.scraper.page.Classified
 import terra.scraper.page.SearchResultPage
 import terra.scraper.util.DateUtils
 
-class JSoupScraper {
+open class JSoupScraper {
+
+    open fun fetchDocument(url: String): Document =
+            Jsoup.connect(url).post()
 
     fun parseAds(location: URLRequest): SearchResultPage {
-        val document = Jsoup.connect(location.url).get()
+        val document = fetchDocument(location.url)
 
         val regularCol = document.select("div#maincol").first()
         val regularAds = parseColumn(regularCol)

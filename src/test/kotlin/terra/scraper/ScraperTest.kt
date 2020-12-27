@@ -4,6 +4,8 @@ import com.github.kristofa.test.http.Method
 import com.github.kristofa.test.http.MockHttpServer
 import com.github.kristofa.test.http.SimpleHttpResponseProvider
 import org.apache.http.entity.ContentType
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
@@ -41,7 +43,11 @@ class MockHttpTest {
                 .expect(Method.GET, "/")
                 .respondWith(200, ContentType.TEXT_HTML.mimeType, html)
 
-        val scraper = JSoupScraper()
+        // FIXME: it's very difficult to expect a POST request with HTTP mocking library
+        val scraper = object : JSoupScraper() {
+            override fun fetchDocument(url: String): Document =
+                    Jsoup.connect(url).get()
+        }
         val page = scraper.parseAds(LocalListClassifiedsRequest())
         assertEquals(313, page.totalResults)
         assertEquals(20, page.classifieds.size)
